@@ -25,8 +25,15 @@ function Invoke-External {
     )
 
     Write-Host "> $Command $($Arguments -join ' ')" -ForegroundColor DarkGray
-    $commandOutput = @(& $Command @Arguments 2>&1)
-    $exitCode = $LASTEXITCODE
+    $previousErrorActionPreference = $ErrorActionPreference
+    try {
+        $ErrorActionPreference = "Continue"
+        $commandOutput = @(& $Command @Arguments 2>&1)
+        $exitCode = $LASTEXITCODE
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorActionPreference
+    }
 
     foreach ($line in $commandOutput) {
         Write-Host $line
