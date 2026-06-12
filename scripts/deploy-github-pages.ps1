@@ -25,8 +25,12 @@ function Invoke-External {
     )
 
     Write-Host "> $Command $($Arguments -join ' ')" -ForegroundColor DarkGray
-    & $Command @Arguments
+    $commandOutput = @(& $Command @Arguments 2>&1)
     $exitCode = $LASTEXITCODE
+
+    foreach ($line in $commandOutput) {
+        Write-Host $line
+    }
 
     if (-not $AllowFailure -and $exitCode -ne 0) {
         throw "O comando falhou com código $exitCode`: $Command $($Arguments -join ' ')"
