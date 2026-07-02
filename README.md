@@ -1,6 +1,17 @@
 # Fukuda Sistemas
 
-Landing page institucional estática da Fukuda Sistemas, criada com HTML, CSS e JavaScript puros. O site apresenta serviços de desenvolvimento de sistemas, automações, sites profissionais, painéis e integrações para pequenas empresas.
+Landing page institucional estática da Fukuda Sistemas, criada com HTML, CSS e JavaScript puros.
+
+O site apresenta a Fukuda Sistemas como uma empresa de sistemas práticos para negócios reais, com foco em automações via WhatsApp, painéis operacionais, relatórios, sites/cardápios digitais e ferramentas sob medida para pequenas empresas.
+
+## Conteúdo principal
+
+A página deve destacar exemplos práticos já trabalhados na operação:
+
+- **Ciclus Agro / RDV**: recebimento de comprovantes pelo WhatsApp, identificação por colaborador, controle de KM, categorias e relatório semanal em Excel.
+- **OLT / Contentores**: fluxos de cadastro, entrega, recolha, status, fotos, avarias, histórico e visão operacional/financeira.
+- **Cardápio digital**: cardápio mobile-first com carrinho e envio do pedido para o WhatsApp do restaurante.
+- **Lucre Agro / Documentos**: recepção documental, CPF/CNPJ antes do envio, classificação e validação de documentos.
 
 ## Configuração
 
@@ -23,8 +34,6 @@ Dados públicos configurados:
 
 O número do WhatsApp usa o formato internacional, somente com números, sem `+`, espaços ou traços.
 
-> O e-mail profissional pode estar em propagação de DNS na Umbler/Registro.br e está configurado para ser usado publicamente no site.
-
 ## Abrir localmente
 
 Abra o arquivo `index.html` diretamente no navegador. Não é necessário instalar dependências ou executar um servidor.
@@ -36,9 +45,7 @@ Abra o arquivo `index.html` diretamente no navegador. Não é necessário instal
 Este é o site estático institucional da Fukuda Sistemas, preparado para publicação via GitHub Pages.
 
 - Link provisório: `https://danilofukuda.github.io/fukuda-sistemas-site/`
-- Domínio final planejado: `https://fukudasistemas.com.br`
-
-Enquanto o domínio personalizado não for configurado, o projeto pode ser acessado pelo endereço provisório do GitHub Pages.
+- Domínio final: `https://fukudasistemas.com.br`
 
 ### GitHub Pages
 
@@ -59,6 +66,6 @@ Importe o repositório no Vercel e selecione **Other** como framework. Não info
 
 - `index.html`: conteúdo, SEO e estrutura da página.
 - `styles.css`: identidade visual e responsividade.
-- `script.js`: contatos, menu mobile e animações.
+- `script.js`: contatos, mensagens do WhatsApp, menu mobile e animações.
 - `assets/`: logo, favicon e ícone para dispositivos Apple.
 - `robots.txt` e `sitemap.xml`: arquivos de indexação.
