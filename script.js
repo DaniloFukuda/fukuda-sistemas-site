@@ -6,15 +6,46 @@ const SITE_CONFIG = {
 };
 
 const WHATSAPP_MESSAGE =
-  "Olá! Vim pelo site da Fukuda Sistemas e gostaria de conversar sobre uma solução digital para meu negócio.";
-const AUTOMATION_WHATSAPP_MESSAGE =
-  "Olá! Vim pelo site da Fukuda Sistemas e quero fazer um orçamento para uma automação no meu negócio.";
+  "Olá! Vim pelo site da Fukuda Sistemas e gostaria de conversar sobre uma solução digital para meu negócio. Origem: SITE_FUKUDA";
+
+const PLAN_CONFIG = {
+  essencial: {
+    name: "Essencial",
+    implementation: "R$ 699",
+    installments: "3x de R$ 233",
+    monthly: "R$ 349,90",
+    firstThree: "R$ 1.748,70",
+    summary: "Implantação de R$ 699, em até 3 parcelas de R$ 233, e mensalidade de R$ 349,90.",
+    fallbackMessage:
+      "Olá! Tenho interesse no plano Essencial (implantação R$ 699, 3x R$ 233, mensalidade R$ 349,90). Origem: SITE_FUKUDA",
+  },
+  comercial: {
+    name: "Comercial",
+    implementation: "R$ 1.299",
+    installments: "3x de R$ 433",
+    monthly: "R$ 449,90",
+    firstThree: "R$ 2.648,70",
+    summary: "Implantação de R$ 1.299, em até 3 parcelas de R$ 433, e mensalidade de R$ 449,90.",
+    fallbackMessage:
+      "Olá! Tenho interesse no plano Comercial (implantação R$ 1.299, 3x R$ 433, mensalidade R$ 449,90). Origem: SITE_FUKUDA",
+  },
+  erp: {
+    name: "Integrado ao ERP",
+    implementation: "a partir de R$ 2.499",
+    installments: "3x a partir de R$ 833",
+    monthly: "a partir de R$ 699,90",
+    firstThree: "a partir de R$ 4.598,70",
+    summary:
+      "Implantação a partir de R$ 2.499, em até 3 parcelas a partir de R$ 833, e mensalidade a partir de R$ 699,90, sujeita à análise técnica.",
+    fallbackMessage:
+      "Olá! Tenho interesse no plano Integrado ao ERP (implantação a partir de R$ 2.499, 3x a partir de R$ 833, mensalidade a partir de R$ 699,90). Origem: SITE_FUKUDA",
+  },
+};
 
 const menuToggle = document.querySelector(".menu-toggle");
 const mainNav = document.querySelector(".main-nav");
 const header = document.querySelector(".site-header");
 const whatsappLinks = document.querySelectorAll(".whatsapp-link");
-const automationWhatsappLinks = document.querySelectorAll(".automation-whatsapp-link");
 const emailLinks = document.querySelectorAll(".email-link");
 const domainLinks = document.querySelectorAll(".domain-link");
 const currentYear = document.querySelector("#current-year");
@@ -23,6 +54,7 @@ const brandImages = document.querySelectorAll(".brand img");
 brandImages.forEach((image) => {
   image.addEventListener("error", () => {
     image.hidden = true;
+    image.parentElement.classList.add("logo-failed");
   });
 });
 
@@ -30,6 +62,7 @@ function closeMenu() {
   menuToggle.setAttribute("aria-expanded", "false");
   menuToggle.setAttribute("aria-label", "Abrir menu");
   mainNav.classList.remove("open");
+  mainNav.setAttribute("aria-hidden", String(window.innerWidth < 900));
   document.body.classList.remove("menu-open");
 }
 
@@ -38,6 +71,7 @@ menuToggle.addEventListener("click", () => {
   menuToggle.setAttribute("aria-expanded", String(!isOpen));
   menuToggle.setAttribute("aria-label", isOpen ? "Abrir menu" : "Fechar menu");
   mainNav.classList.toggle("open", !isOpen);
+  mainNav.setAttribute("aria-hidden", String(isOpen));
   document.body.classList.toggle("menu-open", !isOpen);
 });
 
@@ -57,6 +91,8 @@ window.addEventListener("resize", () => {
   }
 });
 
+closeMenu();
+
 function updateHeader() {
   header.classList.toggle("scrolled", window.scrollY > 12);
 }
@@ -64,25 +100,15 @@ function updateHeader() {
 window.addEventListener("scroll", updateHeader, { passive: true });
 updateHeader();
 
+function buildWhatsAppUrl(message) {
+  return `https://wa.me/${SITE_CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+}
+
 const isWhatsappConfigured = /^\d{10,15}$/.test(SITE_CONFIG.WHATSAPP_NUMBER);
-const whatsappUrl = isWhatsappConfigured
-  ? `https://wa.me/${SITE_CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`
-  : "#contato";
-const automationWhatsappUrl = isWhatsappConfigured
-  ? `https://wa.me/${SITE_CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(AUTOMATION_WHATSAPP_MESSAGE)}`
-  : "#contato";
+const whatsappUrl = isWhatsappConfigured ? buildWhatsAppUrl(WHATSAPP_MESSAGE) : "#contato";
 
 whatsappLinks.forEach((link) => {
   link.href = whatsappUrl;
-  if (!isWhatsappConfigured) {
-    link.removeAttribute("target");
-    link.removeAttribute("rel");
-    link.setAttribute("title", "Configure o número do WhatsApp em script.js");
-  }
-});
-
-automationWhatsappLinks.forEach((link) => {
-  link.href = automationWhatsappUrl;
   if (!isWhatsappConfigured) {
     link.removeAttribute("target");
     link.removeAttribute("rel");
@@ -117,6 +143,56 @@ document.querySelectorAll("[data-brand-name]").forEach((element) => {
 });
 
 currentYear.textContent = new Date().getFullYear();
+
+const planSelectButtons = document.querySelectorAll("[data-plan-select]");
+const planCards = document.querySelectorAll("[data-plan-card]");
+const planName = document.querySelector("[data-plan-name]");
+const planSummaryCopy = document.querySelector("[data-plan-summary-copy]");
+const planFirstThree = document.querySelector("[data-plan-first-three]");
+const planAfter = document.querySelector("[data-plan-after]");
+const planWhatsApp = document.querySelector("[data-plan-whatsapp]");
+
+function updatePlanSelection(planKey, moveFocus = false) {
+  const plan = PLAN_CONFIG[planKey];
+  if (!plan) return;
+
+  planCards.forEach((card) => {
+    const isSelected = card.dataset.planCard === planKey;
+    card.classList.toggle("is-selected", isSelected);
+    const button = card.querySelector("[data-plan-select]");
+    if (button) {
+      button.setAttribute("aria-checked", String(isSelected));
+      button.tabIndex = isSelected ? 0 : -1;
+      if (moveFocus && isSelected) button.focus();
+    }
+  });
+
+  if (planName) planName.textContent = plan.name;
+  if (planSummaryCopy) planSummaryCopy.textContent = plan.summary;
+  if (planFirstThree) planFirstThree.textContent = plan.firstThree;
+  if (planAfter) planAfter.textContent = `${plan.monthly}/mês`;
+  if (planWhatsApp && isWhatsappConfigured) {
+    planWhatsApp.href = buildWhatsAppUrl(plan.fallbackMessage);
+  }
+}
+
+if (planSelectButtons.length > 0) {
+  planSelectButtons.forEach((button, index) => {
+    button.addEventListener("click", () => updatePlanSelection(button.dataset.planSelect));
+    button.addEventListener("keydown", (event) => {
+      if (!["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"].includes(event.key)) return;
+      event.preventDefault();
+      const direction = ["ArrowRight", "ArrowDown"].includes(event.key) ? 1 : -1;
+      const nextIndex = (index + direction + planSelectButtons.length) % planSelectButtons.length;
+      const nextButton = planSelectButtons[nextIndex];
+      updatePlanSelection(nextButton.dataset.planSelect, true);
+    });
+  });
+
+  const selectedButton = document.querySelector('[data-plan-select][aria-checked="true"]');
+  updatePlanSelection(selectedButton?.dataset.planSelect || "comercial");
+}
+
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const DEMO_FLOWS = {
@@ -231,6 +307,7 @@ const demoSubtitle = document.querySelector("[data-demo-subtitle]");
 const demoMessages = document.querySelector("[data-demo-messages]");
 const demoOptions = document.querySelector("[data-demo-options]");
 const demoReset = document.querySelector("[data-demo-reset]");
+const demoPhone = document.querySelector("#demo-phone");
 const demoDelay = prefersReducedMotion ? 0 : 360;
 let activeDemo = "olt";
 let demoState = {};
@@ -340,6 +417,7 @@ if (demoMessages && demoOptions && demoReset) {
       demoTabs.forEach((item) => {
         item.setAttribute("aria-selected", String(item === tab));
       });
+      if (demoPhone) demoPhone.setAttribute("aria-labelledby", tab.id);
       resetDemo();
     });
   });
